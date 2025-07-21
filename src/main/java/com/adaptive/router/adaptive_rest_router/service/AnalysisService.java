@@ -12,7 +12,7 @@ public class AnalysisService {
         if (conteudo == null || conteudo.isEmpty()) {
             return 0.0;
         }
-
+        //manter a verificacao por caractere ou aplicar uma abordagem mais semantica??
         Map<Character, Integer> frequencias = new HashMap<>();
         int totalCaracteres = conteudo.length();
 
