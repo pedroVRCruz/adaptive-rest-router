@@ -35,7 +35,7 @@ public class AnalysisService {
     public double calcularEntropia(String texto) {
         if (texto == null || texto.isEmpty()) return 0.0;
 
-        int[] freq = new int[256];
+        int[] freq = new int[256]; //ASCII de 8 bits
         int total = texto.length();
 
         for (char c : texto.toCharArray()) {
