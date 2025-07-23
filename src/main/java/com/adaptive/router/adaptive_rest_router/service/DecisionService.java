@@ -11,7 +11,7 @@ public class DecisionService {
 
     public Action decidir(String conteudoJson) {
         //calcular a entropia para tomada de decisao
-        double h = analysisService.calcularEntropia(conteudoJson);
+        double h = analysisService.calcularEntropiaSomenteValores(conteudoJson);
 
         //parametros de ref para tomada de decisao
         //necessários mais testes para validar os parametros condicionais

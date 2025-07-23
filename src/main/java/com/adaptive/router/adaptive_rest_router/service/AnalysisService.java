@@ -1,33 +1,55 @@
 package com.adaptive.router.adaptive_rest_router.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Iterator;
 
 @Service
 public class AnalysisService {
 
-    public double calcularEntropia(String conteudo) {
-        if (conteudo == null || conteudo.isEmpty()) {
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    public double calcularEntropiaSomenteValores(String conteudo) {
+        if (conteudo == null || conteudo.isEmpty()) return 0.0;
+
+        try {
+            JsonNode root = objectMapper.readTree(conteudo);
+            StringBuilder valoresConcat = new StringBuilder();
+
+            Iterator<JsonNode> elementos = root.elements();
+            while (elementos.hasNext()) {
+                JsonNode valor = elementos.next();
+                valoresConcat.append(valor.asText());
+            }
+            return calcularEntropia(valoresConcat.toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
             return 0.0;
         }
-        //manter a verificacao por caractere ou aplicar uma abordagem mais semantica??
-        Map<Character, Integer> frequencias = new HashMap<>();
-        int totalCaracteres = conteudo.length();
+    }
 
-        // Contagem de frequência de cada caractere
-        for (char c : conteudo.toCharArray()) {
-            frequencias.put(c, frequencias.getOrDefault(c, 0) + 1);
+    // cálculo de entropia padrão
+    public double calcularEntropia(String texto) {
+        if (texto == null || texto.isEmpty()) return 0.0;
+
+        int[] freq = new int[256];
+        int total = texto.length();
+
+        for (char c : texto.toCharArray()) {
+            freq[c]++;
         }
 
-        // Cálculo da entropia
         double entropia = 0.0;
-        for (int freq : frequencias.values()) {
-            double probabilidade = (double) freq / totalCaracteres;
-            entropia += probabilidade * (Math.log(probabilidade) / Math.log(2));
+        for (int f : freq) {
+            if (f > 0) {
+                double p = (double) f / total;
+                entropia += p * (Math.log(p) / Math.log(2));
+            }
         }
 
-        return -entropia; // Resultado final em bits
+        return -entropia;
     }
 }

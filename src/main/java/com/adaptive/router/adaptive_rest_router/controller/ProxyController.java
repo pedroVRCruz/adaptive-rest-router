@@ -19,19 +19,10 @@ public class ProxyController {
 
     @PostMapping
     public ResponseEntity<String> interceptRequest(@RequestBody String body) {
-        double entropia = analysisService.calcularEntropia(body);
+        double entropia = analysisService.calcularEntropiaSomenteValores(body);
         Action acao = decisionService.decidir(body);
 
-        switch (acao) {
-            case SUPRIMIR:
-                return ResponseEntity.ok("Requisição suprimida (entropia: " + entropia + ")");
-            case COMPRIMIR:
-                String comprimido = body.replaceAll("\"status\":\"ativo\"", "");
-                return ResponseEntity.ok("Payload comprimido: " + comprimido);
-            case ENCAMINHAR:
-                return ResponseEntity.ok("Requisição encaminhada (entropia: " + entropia + ")");
-            default:
-                return ResponseEntity.status(500).body("Erro inesperado");
-        }
+        return ResponseEntity.ok("Entropia: " + entropia + " | Ação: " + acao);
     }
 }
+
