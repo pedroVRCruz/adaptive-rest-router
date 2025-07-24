@@ -1,59 +1,36 @@
 package com.adaptive.router.adaptive_rest_router.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Service;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.zip.GZIPOutputStream;
+import java.util.Base64;
 
-import java.util.Iterator;
-import java.util.Map;
 
 @Service
 public class CompressionService {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final double THRESHOLD = 2.5; // abaixo disso o campo é considerado "informacionalmente irrelevante"
-
     public String comprimir(String body) {
         try {
-            ObjectNode root = (ObjectNode) objectMapper.readTree(body);
-            Iterator<Map.Entry<String, com.fasterxml.jackson.databind.JsonNode>> campos = root.fields();
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream);
 
-            while (campos.hasNext()) {
-                Map.Entry<String, com.fasterxml.jackson.databind.JsonNode> campo = campos.next();
-                String valor = campo.getValue().asText();
+            gzipOutputStream.write(body.getBytes());
+            gzipOutputStream.close();
 
-                double entropia = calcularEntropia(valor);
-                if (entropia < THRESHOLD) {
-                    root.put(campo.getKey(), ""); // ou root.remove(...) se quiser apagar o campo
-                }
-            }
-            System.out.println(objectMapper.writeValueAsString(root));
-            return objectMapper.writeValueAsString(root);
+            System.out.println("body = " + body);
+            byte[] compressedBytes = byteArrayOutputStream.toByteArray();
+            System.out.println(compressedBytes.length);
 
-        } catch (Exception e) {
+
+            // Codifica em Base64 para manter um texto seguro para JSON
+            return Base64.getEncoder().encodeToString(compressedBytes);
+
+        } catch (IOException e) {
+            //may be replaced by a more robust logging, when we have a db ...
             e.printStackTrace();
-            return body;
+            return body; // fallback
         }
-    }
-
-    private double calcularEntropia(String texto) {
-        if (texto == null || texto.isEmpty()) return 0.0;
-
-        int[] freq = new int[256];
-        int total = texto.length();
-
-        for (char c : texto.toCharArray()) {
-            freq[c]++;
-        }
-
-        double entropia = 0.0;
-        for (int f : freq) {
-            if (f > 0) {
-                double p = (double) f / total;
-                entropia += p * (Math.log(p) / Math.log(2));
-            }
-        }
-
-        return -entropia;
     }
 }
+
