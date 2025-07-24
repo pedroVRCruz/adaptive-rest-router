@@ -29,6 +29,11 @@ public class ProxyController {
     @Autowired
     private ForwardingService forwardingService;
 
+    @GetMapping("/ping")
+    public ResponseEntity<String> ping() {
+        return ResponseEntity.ok("PONG");
+    }
+
     @PostMapping
     public ResponseEntity<String> interceptRequest(@RequestBody String body) {
         double entropia = analysisService.calcularEntropiaSomenteValores(body);
